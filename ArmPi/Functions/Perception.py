@@ -44,8 +44,8 @@ class Perception():
         # initialize variables
         max_area = 0
         colorDetected = ()    # colors of the blocks detected
-        centers = ()    # center locations of the blocks detected
-        rotAngles = ()  # rotation angles of the blocks detected
+        center = ()    # center location of the block detected
+        rotAngle = ()  # rotation angle of the block detected
         
         # resize image for processing
         img_copy = img.copy()
@@ -66,10 +66,11 @@ class Perception():
                         areaMaxContour_max = areaMaxContour
                         
         if max_area > 2500:     # areas larger than 2500 are probably blocks
-            rect = cv2.minAreaRect(areaMaxContour_max)
-            print("rect:", rect)
+            # find position and angle of box
+            center, rotAngle = self.getBoxLocation(areaMaxContour_max)
+            
 
-        return colorDetected
+        return colorDetected, center, rotAngle
 
 
 
@@ -108,6 +109,19 @@ class Perception():
         return area_max_contour, contour_area_max 
 
         
+    def getBoxLocation(self, areaMaxContour_max):
         
+        rect = cv2.minAreaRect(areaMaxContour_max) # makes the smallest possible box around given contour
+        box = np.int0(cv2.boxPoints(rect))  # converts rect into four points
+        
+        roi = getROI(box) # makes a new box around 'box' with angle=0, for caluclations
+
+        img_centerx, img_centery = getCenter(rect, roi, size, square_length)  # Get the center coordinates of the block
+        
+        world_x, world_y = convertCoordinate(img_centerx, img_centery, size) # Convert to real world coordinates
+        
+        center = (world_x, world_y)
+        rotAngle = rect[2]
+        return center, rotAngle
         
 

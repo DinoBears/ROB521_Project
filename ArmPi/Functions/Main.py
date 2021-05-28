@@ -32,8 +32,10 @@ def main():
         if img is not None:
             frame = img.copy()
             
-            colorDetected = blocks.Tracking(img)
-            print("main: colorDetected:", colorDetected)
+            colorDetected, center, rotAngle = blocks.Tracking(img)
+            print("colorDetected:", colorDetected)
+            print("center:", center)
+            print("rotAngle:", rotAngle)
             
             # Display image
             cv2.imshow('Frame', img)
