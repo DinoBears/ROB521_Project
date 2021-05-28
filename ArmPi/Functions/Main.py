@@ -32,7 +32,7 @@ def main():
         if img is not None:
             frame = img.copy()
             
-            blocks.Tracking()
+            blocks.Tracking(img)
             
             # Display image
             cv2.imshow('Frame', img)

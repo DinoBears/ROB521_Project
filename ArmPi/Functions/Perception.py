@@ -42,6 +42,8 @@ class Perception():
         } 
         
         self.targetColor = ('red', 'green', 'blue')
+        self.size = (640, 480)  # size of the image
+        
         
     def Tracking(self, img):
         
@@ -63,7 +65,7 @@ class Perception():
 
         for i in color_range:   #color_range comes from LABConfig.py
             if i in self.targetColor:               
-                contours = getContours(frame_lab, i) # Use openCV to find contours
+                contours = self.getContours(frame_lab, i) # Use openCV to find contours
                 print("i:", i)
                 print("conours:", contours)
                 
