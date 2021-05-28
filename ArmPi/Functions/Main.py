@@ -17,7 +17,7 @@ from ArmIK.ArmMoveIK import *
 import HiwonderSDK.Board as Board
 from CameraCalibration.CalibrationConfig import *
 from Perception import Perception
-
+from Move import Move
 
 def main():
     print("Running: Push Blocks")
@@ -26,6 +26,13 @@ def main():
     my_camera = Camera.Camera()
     my_camera.camera_open()
     blocks = Perception()
+    moveArm = Move()
+    
+    # begin threads
+    th = threading.Thread(target=moveArm.move)
+    th.setDaemon(True)
+    th.start()
+    
     
     while True:
         img = my_camera.frame
@@ -33,9 +40,13 @@ def main():
             frame = img.copy()
             
             colorDetected, center, rotAngle = blocks.Tracking(frame)
-            print("colorDetected:", colorDetected)
-            print("center:", center)
-            print("rotAngle:", rotAngle)
+            
+            moveArm.center = center
+            
+            
+            # print("colorDetected:", colorDetected)
+            # print("center:", center)
+            # print("rotAngle:", rotAngle)
             
             # Display image
             cv2.imshow('Frame', blocks.frame)

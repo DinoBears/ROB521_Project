@@ -15,7 +15,6 @@
 import sys
 sys.path.append('/home/pi/ArmPi/')
 import cv2
-import Camera
 from LABConfig import *
 from ArmIK.Transform import *
 from ArmIK.ArmMoveIK import *
@@ -67,10 +66,8 @@ class Perception():
             # find position and angle of box
             center, rotAngle, box = self.getBoxLocation(areaMaxContour_max)
             
-#         self.frame = self.editImg(img, colorDetected, center, box)
-
-        self.editImg(img, colorDetected, center, box)
-        
+        # add lines and labeled box into the image
+        self.editImg(img, colorDetected, center, box)        
         self.frame = img
         
         return colorDetected, center, rotAngle
