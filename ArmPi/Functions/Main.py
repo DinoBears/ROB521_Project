@@ -41,12 +41,20 @@ def main():
             
             colorDetected, center, rotAngle = blocks.Tracking(frame)
             
+            # passing information to arm
+            print("passing  info")
+            moveArm.colorDetected = colorDetected
+            moveArm.lastCenter = moveArm.center
             moveArm.center = center
+            moveArm.rotAngle = rotAngle
+            
             
             
             # print("colorDetected:", colorDetected)
             # print("center:", center)
             # print("rotAngle:", rotAngle)
+            
+            
             
             # Display image
             cv2.imshow('Frame', blocks.frame)

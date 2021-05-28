@@ -32,7 +32,7 @@ class Perception():
             'white': (255, 255, 255),
         } 
         
-        self.targetColor = ('red', 'green', 'blue') # colors we are looking for
+        self.targetColor = ('red', 'blue') # colors we are looking for
         self.size = (640, 480)  # size of the image
         self.frame = ()     # image frame with lines and block detection
         
