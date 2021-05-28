@@ -59,7 +59,7 @@ class Perception():
         for i in color_range:   #color_range comes from LABConfig.py
             if i in self.targetColor:               
                 contours = self.getContours(frame_lab, i) # Use openCV to find contours
-                areaMaxContour, area_max = getAreaMaxContour(contours)  # Find the largest contour
+                areaMaxContour, area_max = self.getAreaMaxContour(contours)  # Find the largest contour
                 
                 print("color:", i)
                 print("areaMaxContour:", areaMaxContour)
