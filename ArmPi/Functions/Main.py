@@ -21,10 +21,21 @@ from Perception import *
 
 def main():
     print("Running: Push Blocks")
+    
     # initializations
+    my_camera = Camera.Camera()
+    my_camera.camera_open()
     blocks = Perception()
     
-    blocks.testing()
+    while True:
+        img = my_camera.frame
+        if img is not None:
+            frame = img.copy()
+            cv2.imshow('Frame', frame)
+
+    
+    my_camera.camera_close()
+    cv2.destroyAllWindows()
     
     
     
