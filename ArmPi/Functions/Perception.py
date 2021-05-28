@@ -56,18 +56,14 @@ class Perception():
         frame_lab = self.resizeImg(img_copy)
         
         # find location and size of contours
-        
-        
-        # color_area_max = None
-        # max_area = 0
-        # areaMaxContour_max = 0
-        
-
         for i in color_range:   #color_range comes from LABConfig.py
             if i in self.targetColor:               
                 contours = self.getContours(frame_lab, i) # Use openCV to find contours
-                print("i:", i)
-                print("conours:", contours)
+                areaMaxContour, area_max = getAreaMaxContour(contours)  # Find the largest contour
+                
+                print("color:", i)
+                print("areaMaxContour:", areaMaxContour)
+                print("area_max:", area_max)
                 
                 # areaMaxContour, area_max = getAreaMaxContour(contours)  # Find the largest contour
                 # if areaMaxContour is not None:
@@ -90,19 +86,30 @@ class Perception():
 
           
     def getContours(self, frame_lab, color):
+        # returns an array of points for the contours of the given color 
         frame_mask = cv2.inRange(frame_lab, color_range[color][0], color_range[color][1])  # Make a mask from the image
         opened = cv2.morphologyEx(frame_mask, cv2.MORPH_OPEN, np.ones((6, 6), np.uint8))  # Remove noise outside the objects of interest
         closed = cv2.morphologyEx(opened, cv2.MORPH_CLOSE, np.ones((6, 6), np.uint8))  # Remove noise inside the objects of interest
         contours = cv2.findContours(closed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[-2]  # Find the outline
         return contours
         
-        
-        
-        
-        
-        
-        
-        
+    
+    
+    def getAreaMaxContour(self, contours):
+        # get the largest contour
+        contour_area_temp = 0
+        contour_area_max = 0
+        area_max_contour = None
+
+        for c in contours:  # Traverse all contours
+            contour_area_temp = math.fabs(cv2.contourArea(c))  # Calculate the contour area
+            if contour_area_temp > contour_area_max:
+                contour_area_max = contour_area_temp
+                if contour_area_temp > 300:  # Only when the area is greater than 300, the contour of the largest area is effective to filter interference
+                    area_max_contour = c
+
+        return area_max_contour, contour_area_max 
+
         
         
         
