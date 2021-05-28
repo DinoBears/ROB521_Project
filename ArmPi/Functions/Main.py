@@ -32,7 +32,8 @@ def main():
         if img is not None:
             frame = img.copy()
             
-            blocks.Tracking(img)
+            colorDetected = blocks.Tracking(img)
+            print("main: colorDetected:", colorDetected)
             
             # Display image
             cv2.imshow('Frame', img)

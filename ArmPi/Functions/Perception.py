@@ -1,8 +1,8 @@
 """
-    Locate blocks
+    Locates one block at a time based on targetColor
     
     Return:
-        colorsDetected - colors of the blocks detected
+        colorDetected - color of the block detected
         centers - center locations of the blocks detected
         rotAngles - rotation angles of the blocks detected
     
@@ -26,12 +26,7 @@ from CameraCalibration.CalibrationConfig import *
 
 
 class Perception():
-    def __init__(self):
-        # # detected block characteristics
-        # self.colorsDetected = ()    # colors of the blocks detected
-        # self.centers = ()    # center locations of the blocks detected
-        # self.rotAngles = ()  # rotation angles of the blocks detected
-        
+    def __init__(self):        
         # color range for the blocks
         self.range_rgb = {
             'red': (0, 0, 255),
@@ -41,7 +36,7 @@ class Perception():
             'white': (255, 255, 255),
         } 
         
-        self.targetColor = ('red', 'green', 'blue')
+        self.targetColor = ('red', 'green', 'blue') # colors we are looking for
         self.size = (640, 480)  # size of the image
         
         
@@ -55,24 +50,27 @@ class Perception():
         img_copy = img.copy()
         frame_lab = self.resizeImg(img_copy)
         
-        # find location and size of contours
+        # initialize variables
+        max_area = 0
+        
+        # check for bocks of the given target color
         for i in color_range:   #color_range comes from LABConfig.py
             if i in self.targetColor:               
                 contours = self.getContours(frame_lab, i) # Use openCV to find contours
                 areaMaxContour, area_max = self.getAreaMaxContour(contours)  # Find the largest contour
                 
-                print("color:", i)
-                print("areaMaxContour:", areaMaxContour)
-                print("area_max:", area_max)
-                
-                # areaMaxContour, area_max = getAreaMaxContour(contours)  # Find the largest contour
-                # if areaMaxContour is not None:
-                #     if area_max > max_area:  # 找最大面积
-                #         max_area = area_max
-                #         color_area_max = i
-                #         areaMaxContour_max = areaMaxContour
+                # select the biggest contour found
+                if areaMaxContour is not None:
+                    if area_max > max_area:  # 找最大面积
+                        max_area = area_max
+                        colorDetected = i
+                        areaMaxContour_max = areaMaxContour
+                        
+        if max_area > 2500:     # areas larger than 2500 are probably blocks
+            rect = cv2.minAreaRect(areaMaxContour_max)
+            print("rect:", rect)
 
-        return
+        return colorDetected
 
 
 
