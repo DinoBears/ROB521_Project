@@ -15,13 +15,10 @@
 import sys
 sys.path.append('/home/pi/ArmPi/')
 import cv2
-import time
 import Camera
-import threading
 from LABConfig import *
 from ArmIK.Transform import *
 from ArmIK.ArmMoveIK import *
-import HiwonderSDK.Board as Board
 from CameraCalibration.CalibrationConfig import *
 
 
@@ -47,6 +44,7 @@ class Perception():
         colorDetected = ()    # colors of the blocks detected
         center = ()    # center location of the block detected
         rotAngle = ()  # rotation angle of the block detected
+        box = ()    # coordinates for points of box around block
         
         # resize image for processing
         img_copy = img.copy()
@@ -69,8 +67,12 @@ class Perception():
             # find position and angle of box
             center, rotAngle, box = self.getBoxLocation(areaMaxContour_max)
             
-        self.frame = self.editImg(img, colorDetected, center, box)
+#         self.frame = self.editImg(img, colorDetected, center, box)
 
+        self.editImg(img, colorDetected, center, box)
+        
+        self.frame = img
+        
         return colorDetected, center, rotAngle
 
 
@@ -128,15 +130,19 @@ class Perception():
         return center, rotAngle, box
         
     
+
     def editImg(self, img, colorDetected, center, box):
         # makes a red cross on the image
         img_h, img_w = img.shape[:2]
-        world_x, world_y = center
+
         cv2.line(img, (0, int(img_h / 2)), (img_w, int(img_h / 2)), (0, 0, 200), 1)
         cv2.line(img, (int(img_w / 2), 0), (int(img_w / 2), img_h), (0, 0, 200), 1)
         
-        cv2.drawContours(img, [box], -1, range_rgb[colorDetected], 2)
-        cv2.putText(img, '(' + str(world_x) + ',' + str(world_y) + ')', (min(box[0, 0], box[2, 0]), box[2, 1] - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, range_rgb[colorDetected], 1) #draw center point
+        # makes a box with labeled coordinates
+        if len(center) == 2:    
+            world_x, world_y = center
+            cv2.drawContours(img, [box], -1, self.range_rgb[colorDetected], 2)
+            cv2.putText(img, '(' + str(world_x) + ',' + str(world_y) + ')', (min(box[0, 0], box[2, 0]), box[2, 1] - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.range_rgb[colorDetected], 1) #draw center point
         
         return

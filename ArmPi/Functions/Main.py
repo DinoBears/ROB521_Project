@@ -38,7 +38,7 @@ def main():
             print("rotAngle:", rotAngle)
             
             # Display image
-            cv2.imshow('Frame', img)
+            cv2.imshow('Frame', blocks.frame)
 
             key = cv2.waitKey(1)
             if key == 27:
