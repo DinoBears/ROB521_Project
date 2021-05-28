@@ -25,7 +25,7 @@ import HiwonderSDK.Board as Board
 from CameraCalibration.CalibrationConfig import *
 
 
-class ColorPerception():
+class Perception():
     def __init__(self):
         # detected block characteristics
         self.colorsDetected = ()    # colors of the blocks detected
