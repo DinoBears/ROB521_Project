@@ -16,7 +16,7 @@ from ArmIK.Transform import *
 from ArmIK.ArmMoveIK import *
 import HiwonderSDK.Board as Board
 from CameraCalibration.CalibrationConfig import *
-from Perception import *
+from Perception import Perception
 
 
 def main():
@@ -31,10 +31,12 @@ def main():
         img = my_camera.frame
         if img is not None:
             frame = img.copy()
+            
+            blocks.Tracking()
+            
+            # Display image
             cv2.imshow('Frame', img)
-            
-            
-            
+
             key = cv2.waitKey(1)
             if key == 27:
                 break
