@@ -41,17 +41,16 @@ class Perception():
         
         
     def Tracking(self, img):
-        
-        colorsDetected = ()    # colors of the blocks detected
+        # initialize variables
+        max_area = 0
+        colorDetected = ()    # colors of the blocks detected
         centers = ()    # center locations of the blocks detected
         rotAngles = ()  # rotation angles of the blocks detected
         
         # resize image for processing
         img_copy = img.copy()
         frame_lab = self.resizeImg(img_copy)
-        
-        # initialize variables
-        max_area = 0
+       
         
         # check for bocks of the given target color
         for i in color_range:   #color_range comes from LABConfig.py
