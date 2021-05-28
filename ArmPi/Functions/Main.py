@@ -49,13 +49,6 @@ def main():
             moveArm.rotAngle = rotAngle
             
             
-            
-            # print("colorDetected:", colorDetected)
-            # print("center:", center)
-            # print("rotAngle:", rotAngle)
-            
-            
-            
             # Display image
             cv2.imshow('Frame', blocks.frame)
 

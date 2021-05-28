@@ -35,17 +35,52 @@ class Move():
         # user parameters
         self.waitTime = 1.5    # time to wait before picking up a block
         
+        # Other initializations
+        self.AK = ArmIK()
+        
+        
     def move(self):
         print("Begin Move")
         
         while True:
+            reachable = False
             
             timer = self.timing()
             
             # If a block has been detected, and hasn't moved for a while, start to grab it
             if timer > self.waitTime:
                 self.beginTimer = True    # reset the timer
+                x, y = self.center
+                
+                reachable = self.checkReach(x, y)
+                
+            if reachable:
+                print("move arm")
+                
+                
+    def checkReach(self, x, y):
+        reachable = False
+        
+        result = self.AK.setPitchRangeMoving((x, y - 2, 5), -90, -90, 0)
+        print("result:", result)
+        
+        if result == False:
+            reachable = False
+        else:
+            reachable = True
+
+        return reachable
             
+            
+             
+    def initMove(self):
+        # Initial position
+        Board.setBusServoPulse(1, self.servo1 - 50, 300)
+        Board.setBusServoPulse(2, 500, 500)
+        self.AK.setPitchRangeMoving((0, 10, 10), -30, -30, -90, 1500)
+        
+        
+        
         
         
     def timing(self):
