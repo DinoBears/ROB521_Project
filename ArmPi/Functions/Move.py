@@ -41,6 +41,7 @@ class Move():
         
     def move(self):
         print("Begin Move")
+        self.initMove()
         
         while True:
             reachable = False
