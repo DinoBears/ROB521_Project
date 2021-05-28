@@ -32,7 +32,7 @@ def main():
         if img is not None:
             frame = img.copy()
             
-            colorDetected, center, rotAngle = blocks.Tracking(img)
+            colorDetected, center, rotAngle = blocks.Tracking(frame)
             print("colorDetected:", colorDetected)
             print("center:", center)
             print("rotAngle:", rotAngle)

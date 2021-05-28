@@ -38,6 +38,7 @@ class Perception():
         
         self.targetColor = ('red', 'green', 'blue') # colors we are looking for
         self.size = (640, 480)  # size of the image
+        self.frame = ()     # image frame with lines and block detection
         
         
     def Tracking(self, img):
@@ -50,7 +51,6 @@ class Perception():
         # resize image for processing
         img_copy = img.copy()
         frame_lab = self.resizeImg(img_copy)
-       
         
         # check for bocks of the given target color
         for i in color_range:   #color_range comes from LABConfig.py
@@ -67,8 +67,9 @@ class Perception():
                         
         if max_area > 2500:     # areas larger than 2500 are probably blocks
             # find position and angle of box
-            center, rotAngle = self.getBoxLocation(areaMaxContour_max)
+            center, rotAngle, box = self.getBoxLocation(areaMaxContour_max)
             
+        self.frame = self.editImg(img, colorDetected, center, box)
 
         return colorDetected, center, rotAngle
 
@@ -79,6 +80,7 @@ class Perception():
        frame_resize = cv2.resize(img, self.size, interpolation=cv2.INTER_NEAREST)
        frame_gb = cv2.GaussianBlur(frame_resize, (11, 11), 11)
        frame_lab = cv2.cvtColor(frame_gb, cv2.COLOR_BGR2LAB) # convert image from BGR to LAB color space
+       
        return frame_lab  
 
 
@@ -89,10 +91,10 @@ class Perception():
         opened = cv2.morphologyEx(frame_mask, cv2.MORPH_OPEN, np.ones((6, 6), np.uint8))  # Remove noise outside the objects of interest
         closed = cv2.morphologyEx(opened, cv2.MORPH_CLOSE, np.ones((6, 6), np.uint8))  # Remove noise inside the objects of interest
         contours = cv2.findContours(closed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[-2]  # Find the outline
-        return contours
         
-    
-    
+        return contours
+
+
     def getAreaMaxContour(self, contours):
         # get the largest contour
         contour_area_temp = 0
@@ -116,12 +118,25 @@ class Perception():
         
         roi = getROI(box) # makes a new box around 'box' with angle=0, for caluclations
 
-        img_centerx, img_centery = getCenter(rect, roi, size, square_length)  # Get the center coordinates of the block
+        img_centerx, img_centery = getCenter(rect, roi, self.size, square_length)  # Get the center coordinates of the block
         
-        world_x, world_y = convertCoordinate(img_centerx, img_centery, size) # Convert to real world coordinates
+        world_x, world_y = convertCoordinate(img_centerx, img_centery, self.size) # Convert to real world coordinates
         
         center = (world_x, world_y)
         rotAngle = rect[2]
-        return center, rotAngle
         
-
+        return center, rotAngle, box
+        
+    
+    def editImg(self, img, colorDetected, center, box):
+        # makes a red cross on the image
+        img_h, img_w = img.shape[:2]
+        world_x, world_y = center
+        cv2.line(img, (0, int(img_h / 2)), (img_w, int(img_h / 2)), (0, 0, 200), 1)
+        cv2.line(img, (int(img_w / 2), 0), (int(img_w / 2), img_h), (0, 0, 200), 1)
+        
+        cv2.drawContours(img, [box], -1, range_rgb[colorDetected], 2)
+        cv2.putText(img, '(' + str(world_x) + ',' + str(world_y) + ')', (min(box[0, 0], box[2, 0]), box[2, 1] - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, range_rgb[colorDetected], 1) #draw center point
+        
+        return
