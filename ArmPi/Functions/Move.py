@@ -55,23 +55,50 @@ class Move():
                 self.beginTimer = True    # reset the timer
                 self.tracking = False
                 
-                self.goToBlock(x, y) # go up to block
-                
-                
+                self.goToBlock(x, y) # go down to block
+                self.grabBlock(x, y) # turn gripper and go to pick up block
+                self.defaultPos() # go back to home position
                 
     def goToBlock(self, x, y):
+        # get close to block
         self.AK.setPitchRangeMoving((x, y - 2, 5), -90, -90, 0)
         time.sleep(0.02)
         return
             
-            
-             
+    
+    def grabBlock(self, x, y):
+        # open gripper
+        Board.setBusServoPulse(1, self.servo1 - 280, 500) 
+        
+        # turn gripper to match block
+        servo2_angle = getAngle(x, y, self.rotAngle) 
+        Board.setBusServoPulse(2, servo2_angle, 500) 
+        time.sleep(0.8)
+        
+        # put gripper around block
+        self.AK.setPitchRangeMoving((x, y, 2), -90, -90, 0, 1000)
+        time.sleep(2)
+        
+        # close gripper
+        Board.setBusServoPulse(1, self.servo1, 500)
+        time.sleep(1)
+        return
+        
+    def defaultPos(self):
+        # go to home position
+        Board.setBusServoPulse(2, 500, 500)         
+        self.AK.setPitchRangeMoving((0, 10, 10), -30, -30, -90, 1500)  # Move the arm up
+        time.sleep(1)
+        return
+        
+        
     def initMove(self):
         # Initial position
         Board.setBusServoPulse(1, self.servo1 - 50, 300)
         Board.setBusServoPulse(2, 500, 500)
         self.AK.setPitchRangeMoving((0, 10, 10), -30, -30, -90, 1500)
-     
+        return
+    
         
     def timing(self):
         # runs the timer when the block isn't moving
