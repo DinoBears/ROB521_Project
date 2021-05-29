@@ -50,11 +50,16 @@ class Move():
             
             # If a block has been detected, and hasn't moved for a while, run arm
             if timer > self.waitTime:
+                x, y = self.center
                 self.beginTimer = True    # reset the timer
                 
+                self.goToBlock(x, y) # go up to block
                 
                 
-
+    def goToBlock(self, x, y):
+        self.AK.setPitchRangeMoving((x, y - 2, 5), -90, -90, 0, 20)
+        time.sleep(0.02)
+        return
             
             
              
