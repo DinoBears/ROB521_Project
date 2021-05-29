@@ -39,19 +39,22 @@ def main():
         if img is not None:
             frame = img.copy()
             
-            
-            colorDetected, center, rotAngle = blocks.Tracking(frame)
-            
-            # passing information to arm
-            # print("passing  info")
-            moveArm.colorDetected = colorDetected
-            moveArm.lastCenter = moveArm.center
-            moveArm.center = center
-            moveArm.rotAngle = rotAngle
-            
+            if moveArm.tracking:
+                colorDetected, center, rotAngle = blocks.Tracking(frame)
+                
+                # passing information to arm
+                # print("passing  info")
+                moveArm.colorDetected = colorDetected
+                moveArm.lastCenter = moveArm.center
+                moveArm.center = center
+                moveArm.rotAngle = rotAngle
+                
+                img = blocks.frame
+            else:
+                img = frame
             
             # Display image
-            cv2.imshow('Frame', blocks.frame)
+            cv2.imshow('Frame', img)
 
             key = cv2.waitKey(1)
             if key == 27:
