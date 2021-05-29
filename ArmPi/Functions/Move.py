@@ -55,9 +55,15 @@ class Move():
                 self.beginTimer = True    # reset the timer
                 self.tracking = False
                 
+                # execute arm motion
                 self.goToBlock(x, y) # go down to block
                 self.grabBlock(x, y) # turn gripper and go to pick up block
                 self.defaultPos() # go back to home position
+                self.storeBlock() # put the block back into it's home location
+                self.initMove() # go back to start
+                
+                self.tracking = True
+                
                 
     def goToBlock(self, x, y):
         # get close to block
@@ -85,10 +91,29 @@ class Move():
         return
         
     def defaultPos(self):
-        # go to home position
+        # go to home position, assumes block is in grasp
         Board.setBusServoPulse(2, 500, 500)         
         self.AK.setPitchRangeMoving((0, 10, 10), -30, -30, -90, 1500)  # Move the arm up
         time.sleep(1)
+        return
+        
+    def storeBlock(self):
+        print("color to store:", self.colorDetected)
+        print("hope position:", self.coordinate[self.colorDetected][0])
+        
+        # turn gripper to align with store location box
+        servo2_angle = getAngle(self.coordinate[self.colorDetected][0], self.coordinate[self.colorDetected][1], -90)
+        Board.setBusServoPulse(2, servo2_angle, 500)
+        time.sleep(0.8)
+        
+        # go to block's store location
+        self.AK.setPitchRangeMoving((self.coordinate[self.colorDetected][0], self.coordinate[self.colorDetected][1], self.coordinate[self.colorDetected][2] + 3), -90, -90, 0, 500)
+        time.sleep(1)
+        
+        # open gripper
+        Board.setBusServoPulse(1, self.servo1 - 200, 500)
+        time.sleep(0.8)
+
         return
         
         
