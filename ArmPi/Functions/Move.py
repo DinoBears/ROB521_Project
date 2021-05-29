@@ -37,6 +37,7 @@ class Move():
         
         # Other initializations
         self.AK = ArmIK()
+        self.servo1 = 500                   # block close angle for the gripper
         
         
     def move(self):
@@ -45,32 +46,15 @@ class Move():
         
         while True:
             reachable = False
-            
             timer = self.timing()
             
-            # If a block has been detected, and hasn't moved for a while, start to grab it
+            # If a block has been detected, and hasn't moved for a while, run arm
             if timer > self.waitTime:
                 self.beginTimer = True    # reset the timer
-                x, y = self.center
-                
-                reachable = self.checkReach(x, y)
-                
-            if reachable:
-                print("move arm")
                 
                 
-    def checkReach(self, x, y):
-        reachable = False
-        
-        result = self.AK.setPitchRangeMoving((x, y - 2, 5), -90, -90, 0)
-        print("result:", result)
-        
-        if result == False:
-            reachable = False
-        else:
-            reachable = True
+                
 
-        return reachable
             
             
              
@@ -79,10 +63,7 @@ class Move():
         Board.setBusServoPulse(1, self.servo1 - 50, 300)
         Board.setBusServoPulse(2, 500, 500)
         self.AK.setPitchRangeMoving((0, 10, 10), -30, -30, -90, 1500)
-        
-        
-        
-        
+     
         
     def timing(self):
         # runs the timer when the block isn't moving
@@ -105,3 +86,18 @@ class Move():
 
         return timer
         
+#     def checkReach(self, target):
+#         reachable = False
+#         x, y = target
+#         
+#         result = self.AK.setPitchRangeMoving((x, y - 2, 5), -90, -90, 0)
+#         
+#         if result == False:
+#             reachable = False
+#         else:
+#             reachable = True
+#             time.sleep(result[2]/1000)    # wait a bit so that the arm doesn't move
+#         print("result:", result)
+#         print("reachable", reachable)
+# 
+#         return reachable

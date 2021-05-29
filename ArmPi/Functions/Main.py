@@ -42,7 +42,7 @@ def main():
             colorDetected, center, rotAngle = blocks.Tracking(frame)
             
             # passing information to arm
-            print("passing  info")
+            # print("passing  info")
             moveArm.colorDetected = colorDetected
             moveArm.lastCenter = moveArm.center
             moveArm.center = center
