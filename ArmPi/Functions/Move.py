@@ -39,7 +39,7 @@ class Move():
         self.AK = ArmIK()
         self.servo1 = 500                   # block close angle for the gripper
         self.tracking = True                # shows if we are actively looking for blocks
-        
+        self.targetPos = ()                 # target position
         
     def move(self):
         print("Begin Move")
@@ -53,14 +53,14 @@ class Move():
             if timer > self.waitTime:
                 x, y = self.center
                 self.beginTimer = True    # reset the timer
-                self.tracking = False
+#                 self.tracking = False
                 
                 # execute arm motion
-                self.goToBlock(x, y) # go down to block
-                self.grabBlock(x, y) # turn gripper and go to pick up block
-                self.defaultPos() # go back to home position
-                self.storeBlock() # put the block back into it's home location
-                self.initMove() # go back to start
+#                 self.goToBlock(x, y) # go down to block
+#                 self.grabBlock(x, y) # turn gripper and go to pick up block
+#                 self.defaultPos() # go back to home position
+#                 self.storeBlock() # put the block back into it's home location
+#                 self.initMove() # go back to start
                 
                 self.tracking = True
                 self.center = ()
@@ -101,9 +101,6 @@ class Move():
         return
         
     def storeBlock(self):
-        print("color to store:", self.colorDetected)
-        print("hope position:", self.coordinate[self.colorDetected][0])
-        
         # turn gripper to align with store location box
         servo2_angle = getAngle(self.coordinate[self.colorDetected][0], self.coordinate[self.colorDetected][1], -90)
         Board.setBusServoPulse(2, servo2_angle, 500)
@@ -135,7 +132,6 @@ class Move():
  
         if len(self.lastCenter)==2 and len(self.center)==2:
             t2 = time.time()
-            print("self.center:", self.center)
             x, y = self.center
             last_x, last_y = self.lastCenter
             

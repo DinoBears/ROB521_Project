@@ -33,6 +33,9 @@ def main():
     th.setDaemon(True)
     th.start()
     
+    # user parameters
+    blocks.targetPos = (10, 15)
+    moveArm.targetPos = blocks.targetPos
     
     while True:
         img = my_camera.frame
@@ -43,7 +46,6 @@ def main():
                 colorDetected, center, rotAngle = blocks.Tracking(frame)
                 
                 # passing information to arm
-                # print("passing  info")
                 moveArm.colorDetected = colorDetected
                 moveArm.lastCenter = moveArm.center
                 moveArm.center = center

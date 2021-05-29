@@ -32,9 +32,15 @@ class Perception():
             'white': (255, 255, 255),
         } 
         
-        self.targetColor = ('red', 'blue') # colors we are looking for
+        self.targetColor = ('red') # colors we are looking for
+        self.targetPos = (0, 0) # target position 
+        
         self.size = (640, 480)  # size of the image
         self.frame = ()     # image frame with lines and block detection
+        
+        self.param_data = np.load(map_param_path + '.npz')
+        self.map_param_ = self.param_data['map_param']
+        
         
         
     def Tracking(self, img):
@@ -57,7 +63,7 @@ class Perception():
                 
                 # select the biggest contour found
                 if areaMaxContour is not None:
-                    if area_max > max_area:  # 找最大面积
+                    if area_max > max_area:
                         max_area = area_max
                         colorDetected = i
                         areaMaxContour_max = areaMaxContour
@@ -69,6 +75,12 @@ class Perception():
         # add lines and labeled box into the image
         self.editImg(img, colorDetected, center, box)        
         self.frame = img
+        
+        
+        if len(center) < 2:
+            colorDetected = ()
+            center = ()
+            rotAngle = ()
         
         return colorDetected, center, rotAngle
 
@@ -123,7 +135,7 @@ class Perception():
         
         center = (world_x, world_y)
         rotAngle = rect[2]
-        
+    
         return center, rotAngle, box
         
     
@@ -135,11 +147,33 @@ class Perception():
         cv2.line(img, (0, int(img_h / 2)), (img_w, int(img_h / 2)), (0, 0, 200), 1)
         cv2.line(img, (int(img_w / 2), 0), (int(img_w / 2), img_h), (0, 0, 200), 1)
         
+            
+        # make a red cross over the target position
+        px, py = self.convertW2P(self.targetPos[0], self.targetPos[1], self.size, img)
+
+#         print("coordinates now:", int(px), int(py))
+#         print("img_h, img_w", img_h, img_w)
+#         print("converted back:", convertCoordinate(px, py, self.size))
+        
+        cv2.line(img, (int(px-100), int(py)), (int(px+100), int(py)), (0, 0, 200), 1)
+        cv2.line(img, (int(px), int(py-100)), (int(px), int(py+100)), (0, 0, 200), 1)
+        
         # makes a box with labeled coordinates
         if len(center) == 2:    
             world_x, world_y = center
             cv2.drawContours(img, [box], -1, self.range_rgb[colorDetected], 2)
             cv2.putText(img, '(' + str(world_x) + ',' + str(world_y) + ')', (min(box[0, 0], box[2, 0]), box[2, 1] - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.range_rgb[colorDetected], 1) #draw center point
-        
+            
+            # draw a line from box center to target
+            wx, wy = self.convertW2P(world_x, world_y, self.size, img)
+            cv2.line(img, (int(wx),int(wy)), (int(px), int(py)), (200, 0, 0), 1)
         return
+
+    def convertW2P(self, x, y, size, img):
+        img_h, img_w = img.shape[:2]
+
+        px = img_w/2 + x/self.map_param_
+        py = img_h - (y-11)/self.map_param_
+    
+        return px, py
