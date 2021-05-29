@@ -63,6 +63,9 @@ class Move():
                 self.initMove() # go back to start
                 
                 self.tracking = True
+                self.center = ()
+                self.lastCenter = ()
+                
                 
                 
     def goToBlock(self, x, y):
@@ -107,8 +110,8 @@ class Move():
         time.sleep(0.8)
         
         # go to block's store location
-        self.AK.setPitchRangeMoving((self.coordinate[self.colorDetected][0], self.coordinate[self.colorDetected][1], self.coordinate[self.colorDetected][2] + 3), -90, -90, 0, 500)
-        time.sleep(1)
+        self.AK.setPitchRangeMoving((self.coordinate[self.colorDetected][0], self.coordinate[self.colorDetected][1], self.coordinate[self.colorDetected][2] + 3), -90, -90, 0)
+        time.sleep(2.5)
         
         # open gripper
         Board.setBusServoPulse(1, self.servo1 - 200, 500)
@@ -129,8 +132,10 @@ class Move():
         # runs the timer when the block isn't moving
         timer = 0
         
+ 
         if len(self.lastCenter)==2 and len(self.center)==2:
             t2 = time.time()
+            print("self.center:", self.center)
             x, y = self.center
             last_x, last_y = self.lastCenter
             
@@ -143,6 +148,7 @@ class Move():
                 timer = t2 - self.t1
             else:
                 timer = 0
+
 
         return timer
         
