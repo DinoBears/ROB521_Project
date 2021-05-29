@@ -38,6 +38,7 @@ class Move():
         # Other initializations
         self.AK = ArmIK()
         self.servo1 = 500                   # block close angle for the gripper
+        self.tracking = True                # shows if we are actively looking for blocks
         
         
     def move(self):
@@ -52,12 +53,14 @@ class Move():
             if timer > self.waitTime:
                 x, y = self.center
                 self.beginTimer = True    # reset the timer
+                self.tracking = False
                 
                 self.goToBlock(x, y) # go up to block
                 
                 
+                
     def goToBlock(self, x, y):
-        self.AK.setPitchRangeMoving((x, y - 2, 5), -90, -90, 0, 20)
+        self.AK.setPitchRangeMoving((x, y - 2, 5), -90, -90, 0)
         time.sleep(0.02)
         return
             

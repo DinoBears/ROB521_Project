@@ -39,6 +39,7 @@ def main():
         if img is not None:
             frame = img.copy()
             
+            
             colorDetected, center, rotAngle = blocks.Tracking(frame)
             
             # passing information to arm
