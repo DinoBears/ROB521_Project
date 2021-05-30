@@ -47,7 +47,8 @@ class Perception():
         # initialize variables
         max_area = 0
         colorDetected = ()    # colors of the blocks detected
-        center = ()    # center location of the block detected
+        centerX = ()    # center location of the block detected
+        centerY = ()
         rotAngle = ()  # rotation angle of the block detected
         box = ()    # coordinates for points of box around block
         
@@ -70,19 +71,14 @@ class Perception():
                         
         if max_area > 2500:     # areas larger than 2500 are probably blocks
             # find position and angle of box
-            center, rotAngle, box = self.getBoxLocation(areaMaxContour_max)
+            centerX, centerY, rotAngle, box = self.getBoxLocation(areaMaxContour_max)
             
         # add lines and labeled box into the image
-        self.editImg(img, colorDetected, center, box)        
+        self.editImg(img, colorDetected, centerX, centerY, box)        
         self.frame = img
         
-        
-        if len(center) < 2:
-            colorDetected = ()
-            center = ()
-            rotAngle = ()
-        
-        return colorDetected, center, rotAngle
+
+        return colorDetected, centerX, centerY, rotAngle
 
 
 
@@ -133,14 +129,14 @@ class Perception():
         
         world_x, world_y = convertCoordinate(img_centerx, img_centery, self.size) # Convert to real world coordinates
         
-        center = (world_x, world_y)
+        
         rotAngle = rect[2]
     
-        return center, rotAngle, box
+        return world_x, world_y, rotAngle, box
         
     
 
-    def editImg(self, img, colorDetected, center, box):
+    def editImg(self, img, colorDetected, centerX, centerY, box):
         # makes a red cross on the image
         img_h, img_w = img.shape[:2]
 
@@ -159,14 +155,13 @@ class Perception():
         cv2.line(img, (int(px), int(py-100)), (int(px), int(py+100)), (0, 0, 200), 1)
         
         # makes a box with labeled coordinates
-        if len(center) == 2:    
-            world_x, world_y = center
+        if centerX:    
             cv2.drawContours(img, [box], -1, self.range_rgb[colorDetected], 2)
-            cv2.putText(img, '(' + str(world_x) + ',' + str(world_y) + ')', (min(box[0, 0], box[2, 0]), box[2, 1] - 10),
+            cv2.putText(img, '(' + str(centerX) + ',' + str(centerY) + ')', (min(box[0, 0], box[2, 0]), box[2, 1] - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.range_rgb[colorDetected], 1) #draw center point
             
             # draw a line from box center to target
-            wx, wy = self.convertW2P(world_x, world_y, self.size, img)
+            wx, wy = self.convertW2P(centerX, centerY, self.size, img)
             cv2.line(img, (int(wx),int(wy)), (int(px), int(py)), (200, 0, 0), 1)
         return
 

@@ -28,14 +28,16 @@ def main():
     blocks = Perception()
     moveArm = Move()
     
+    # user parameters
+    blocks.targetPos = (0, 15)
+    moveArm.targetPos = blocks.targetPos
+    
     # begin threads
     th = threading.Thread(target=moveArm.move)
     th.setDaemon(True)
     th.start()
     
-    # user parameters
-    blocks.targetPos = (10, 15)
-    moveArm.targetPos = blocks.targetPos
+
     
     while True:
         img = my_camera.frame
@@ -43,12 +45,16 @@ def main():
             frame = img.copy()
             
             if moveArm.tracking:
-                colorDetected, center, rotAngle = blocks.Tracking(frame)
+                colorDetected, centerX, centerY, rotAngle = blocks.Tracking(frame)
+                
+#                 print("center", centerX, centerY)
                 
                 # passing information to arm
                 moveArm.colorDetected = colorDetected
-                moveArm.lastCenter = moveArm.center
-                moveArm.center = center
+                moveArm.lastCenterX = moveArm.centerX
+                moveArm.lastCenterY = moveArm.centerY
+                moveArm.centerX = centerX
+                moveArm.centerY = centerY
                 moveArm.rotAngle = rotAngle
                 
                 img = blocks.frame

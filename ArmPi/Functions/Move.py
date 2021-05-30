@@ -23,11 +23,13 @@ class Move():
 
         # inputs from Perception
         self.colorDetected = ()
-        self.center = ()
+        self.centerX = ()
+        self.centerY = ()
         self.rotAngle = ()
         
         # for timekeeping
-        self.lastCenter = ()
+        self.lastCenterX = ()
+        self.lastCenterY = ()
         self.t1 = 0
         self.timer = ()
         self.beginTimer = True
@@ -39,9 +41,11 @@ class Move():
         self.AK = ArmIK()
         self.servo1 = 500                   # block close angle for the gripper
         self.tracking = True                # shows if we are actively looking for blocks
-        self.targetPos = ()                 # target position
+        self.targetPos = (0,0)                 # target position
+        self.goalMet = False                # shows if the block is at the given goal
         
     def move(self):
+        targetX, targetY = self.targetPos
         print("Begin Move")
         self.initMove()
         
@@ -51,26 +55,95 @@ class Move():
             
             # If a block has been detected, and hasn't moved for a while, run arm
             if timer > self.waitTime:
-                x, y = self.center
                 self.beginTimer = True    # reset the timer
-#                 self.tracking = False
                 
-                # execute arm motion
-#                 self.goToBlock(x, y) # go down to block
-#                 self.grabBlock(x, y) # turn gripper and go to pick up block
-#                 self.defaultPos() # go back to home position
-#                 self.storeBlock() # put the block back into it's home location
-#                 self.initMove() # go back to start
+                goalDistance = self.getDistance(targetX, targetY, self.centerX, self.centerY)
+#                 print("goalDistance:", goalDistance)
+                
+                if goalDistance < 1:
+                    print("Goal Reached")
+                    self.goalMet = True
+                    self.initMove() # go back to start
+                else:
+                    self.tracking = False
+                    
+                    angle = self.getAngle(targetX, targetY, self.centerX, self.centerY)  # angle of the block position in relation to the target
+                    self.gripperAngle(angle) # turn gripper to be facing target
+                    pointX, pointY = self.getPoint(targetX, targetY, self.centerX, self.centerY, 10) # find a point behind the block
+#                     self.goToBlock(pointX, pointY)  # go behind block
+#                     time.sleep(3)
+                    dist = -goalDistance+4
+                    pointX, pointY = self.getPoint(targetX, targetY, self.centerX, self.centerY, dist) # find a point behind the block
+#                     self.goToBlock(targetX, targetY)  # go up to block
+#                     time.sleep(3)
+#                     self.defaultPos()
+                    
+                    self.tracking = True
                 
                 self.tracking = True
                 self.center = ()
                 self.lastCenter = ()
+           
+    def getPoint(self, x1, y1, x2, y2, dist):
+        goalDistance = self.getDistance(x1, y1, x2, y2)
+        
+        dx = dist*((x2-x1)/goalDistance)
+        dy = dist*((y2-y1)/goalDistance)
+        
+        xOut = x2 + dx
+        yOut = y2 + dy
+#         
+#         print("x1, y1", x1, y1)
+#         print("x2, y2", x2, y2)
+#         print("dx, dy", dx, dy)
+#         print("x3, y3", xOut, yOut)
+        
+        return xOut, yOut
                 
+    def getAngle(self, x1, y1, x2, y2):
+        sideX = x2-x1
+        sideY = y2-y1
+        angleOut = ()
+        
+        angle = abs(math.atan((sideY/sideX)))
+        angle = (angle*180)/math.pi
+        
+        if sideX > 0 and sideY > 0:
+            angleOut = angle   # first quadrant
+        elif sideX < 0 and sideY > 0:
+            angleOut = 180 - angle  # second quadrant
+        elif sideX < 0 and sideY < 0:
+            angleOut = 180 + angle  # third quadrant
+        else:
+            angleOut = 360 - angle  # fourth quadrant
+
+        return int(angleOut)
+    
+    def gripperAngle(self, angle):
+        # calculate gripper angle and move
+        if angle < 180:
+            servoAngle = -(80/18)*angle+900  # servo is at 900 at 0 degrees, 100 at 180 degrees
+        else:
+            servoAngle = -(80/18)*(angle-180)+900
+    
+        Board.setBusServoPulse(2, int(servoAngle), 500)
+        time.sleep(0.8)
+        return
+    
+    
+    def getDistance(self, x1, y1, x2, y2):
+#         print("x1, y1", x1, y1)
+#         print("x2, y2", x2, y2)
+        distance = math.inf
+        if x1 and x2:
+            distance = math.sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2))
+        return distance 
+           
                 
                 
     def goToBlock(self, x, y):
         # get close to block
-        self.AK.setPitchRangeMoving((x, y - 2, 5), -90, -90, 0)
+        self.AK.setPitchRangeMoving((x, y, 2), -90, -90, 0)
         time.sleep(0.02)
         return
             
@@ -129,14 +202,10 @@ class Move():
         # runs the timer when the block isn't moving
         timer = 0
         
- 
-        if len(self.lastCenter)==2 and len(self.center)==2:
+        if self.centerX and self.lastCenterX:
             t2 = time.time()
-            x, y = self.center
-            last_x, last_y = self.lastCenter
             
-            distance = math.sqrt(pow(x - last_x, 2) + pow(y - last_y, 2))
-            
+            distance = self.getDistance(self.centerX, self.centerY, self.lastCenterX, self.lastCenterY)
             if distance < 0.3:
                 if self.beginTimer:
                     self.t1 = t2
@@ -147,19 +216,3 @@ class Move():
 
 
         return timer
-        
-#     def checkReach(self, target):
-#         reachable = False
-#         x, y = target
-#         
-#         result = self.AK.setPitchRangeMoving((x, y - 2, 5), -90, -90, 0)
-#         
-#         if result == False:
-#             reachable = False
-#         else:
-#             reachable = True
-#             time.sleep(result[2]/1000)    # wait a bit so that the arm doesn't move
-#         print("result:", result)
-#         print("reachable", reachable)
-# 
-#         return reachable
