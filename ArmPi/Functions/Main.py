@@ -29,7 +29,7 @@ def main():
     moveArm = Move()
     
     # user parameters
-    blocks.targetPos = (0, 15)
+    blocks.targetPos = (5, 15)
     moveArm.targetPos = blocks.targetPos
     
     # begin threads

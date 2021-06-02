@@ -151,8 +151,8 @@ class Perception():
 #         print("img_h, img_w", img_h, img_w)
 #         print("converted back:", convertCoordinate(px, py, self.size))
         
-        cv2.line(img, (int(px-100), int(py)), (int(px+100), int(py)), (0, 0, 200), 1)
-        cv2.line(img, (int(px), int(py-100)), (int(px), int(py+100)), (0, 0, 200), 1)
+        cv2.line(img, (int(px-100), int(py)), (int(px+100), int(py)), (0, 200, 0), 1)
+        cv2.line(img, (int(px), int(py-100)), (int(px), int(py+100)), (0, 200, 0), 1)
         
         # makes a box with labeled coordinates
         if centerX:    

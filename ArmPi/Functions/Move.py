@@ -57,10 +57,13 @@ class Move():
             if timer > self.waitTime:
                 self.beginTimer = True    # reset the timer
                 
-                goalDistance = self.getDistance(targetX, targetY, self.centerX, self.centerY)
-#                 print("goalDistance:", goalDistance)
+#                 goalDistance = self.getDistance(targetX, targetY, self.centerX, self.centerY) # getDistance is returning only inf for some reason
+                print("target", targetX, targetY)
+                print("block", self.centerX, self.centerY)
+                goalDistance = math.sqrt(pow(targetX - self.centerX, 2) + pow(targetY - self.centerY, 2))
+                print("goalDistance:", goalDistance)
                 
-                if goalDistance < 1:
+                if goalDistance < 2:
                     print("Goal Reached")
                     self.goalMet = True
                     self.initMove() # go back to start
@@ -69,14 +72,18 @@ class Move():
                     
                     angle = self.getAngle(targetX, targetY, self.centerX, self.centerY)  # angle of the block position in relation to the target
                     self.gripperAngle(angle) # turn gripper to be facing target
-                    pointX, pointY = self.getPoint(targetX, targetY, self.centerX, self.centerY, 10) # find a point behind the block
-#                     self.goToBlock(pointX, pointY)  # go behind block
-#                     time.sleep(3)
-                    dist = -goalDistance+4
+                    dist = goalDistance + 5
                     pointX, pointY = self.getPoint(targetX, targetY, self.centerX, self.centerY, dist) # find a point behind the block
-#                     self.goToBlock(targetX, targetY)  # go up to block
-#                     time.sleep(3)
-#                     self.defaultPos()
+                    self.goToBlock(pointX, pointY)  # go behind block
+                    time.sleep(3)
+                    pointX, pointY = self.getPoint(targetX, targetY, self.centerX, self.centerY, 10) 
+                    self.goToBlock(targetX, targetY)  # go up to goal
+                    time.sleep(3)
+                    pointX, pointY = self.getPoint(targetX, targetY, self.centerX, self.centerY, 12)
+                    self.goAboveBlock(targetX, targetY)   # go back a bit
+                    time.sleep(3)
+                    
+                    self.defaultPos()
                     
                     self.tracking = True
                 
@@ -85,18 +92,27 @@ class Move():
                 self.lastCenter = ()
            
     def getPoint(self, x1, y1, x2, y2, dist):
-        goalDistance = self.getDistance(x1, y1, x2, y2)
+        print("x1, y1", x1, y1)
+        print("x2, y2", x2, y2)
+        print("dist", dist)
+        
+        # calculates a point some distance away from (x1, y1) in the direction of (x2, y2) 
+#         goalDistance = math.sqrt(pow(int(x1) - int(x2), 2) + pow(int(y1) - int(y2), 2))
+        goalDistance = math.sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2))
         
         dx = dist*((x2-x1)/goalDistance)
         dy = dist*((y2-y1)/goalDistance)
         
-        xOut = x2 + dx
-        yOut = y2 + dy
-#         
+        xOut = x1 + dx
+        yOut = y1 + dy
+        
+#         print("goalDistance", goalDistance)
 #         print("x1, y1", x1, y1)
 #         print("x2, y2", x2, y2)
 #         print("dx, dy", dx, dy)
-#         print("x3, y3", xOut, yOut)
+        
+        print("x3, y3", xOut, yOut)
+        print("~~~~~~")
         
         return xOut, yOut
                 
@@ -132,8 +148,9 @@ class Move():
     
     
     def getDistance(self, x1, y1, x2, y2):
-#         print("x1, y1", x1, y1)
-#         print("x2, y2", x2, y2)
+    
+#         print("GD x1, y1", x1, y1)
+#         print("GD x2, y2", x2, y2)
         distance = math.inf
         if x1 and x2:
             distance = math.sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2))
@@ -143,7 +160,13 @@ class Move():
                 
     def goToBlock(self, x, y):
         # get close to block
-        self.AK.setPitchRangeMoving((x, y, 2), -90, -90, 0)
+        self.AK.setPitchRangeMoving((x, y, 2), -90, -90, 0, 2000)
+        time.sleep(0.02)
+        return
+    
+    def goAboveBlock(self, x, y):
+        # go up a bit
+        self.AK.setPitchRangeMoving((x, y, 8), -90, -90, 0, 2000)
         time.sleep(0.02)
         return
             
