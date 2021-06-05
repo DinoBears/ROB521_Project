@@ -46,7 +46,7 @@ class Move():
         
     def move(self):
         targetX, targetY = self.targetPos
-        print("Begin Move")
+        print("Begin Movre")
         self.initMove()
         
         while True:
@@ -58,8 +58,8 @@ class Move():
                 self.beginTimer = True    # reset the timer
                 
 #                 goalDistance = self.getDistance(targetX, targetY, self.centerX, self.centerY) # getDistance is returning only inf for some reason
-                print("target", targetX, targetY)
-                print("block", self.centerX, self.centerY)
+#                 print("target", targetX, targetY)
+#                 print("block", self.centerX, self.centerY)
                 goalDistance = math.sqrt(pow(targetX - self.centerX, 2) + pow(targetY - self.centerY, 2))
                 print("goalDistance:", goalDistance)
                 
@@ -76,11 +76,11 @@ class Move():
                     pointX, pointY = self.getPoint(targetX, targetY, self.centerX, self.centerY, dist) # find a point behind the block
                     self.goToBlock(pointX, pointY)  # go behind block
                     time.sleep(3)
-                    pointX, pointY = self.getPoint(targetX, targetY, self.centerX, self.centerY, 10) 
-                    self.goToBlock(targetX, targetY)  # go up to goal
+                    pointX, pointY = self.getPoint(targetX, targetY, self.centerX, self.centerY, 2.5) 
+                    self.goToBlock(pointX, pointY)  # go up to goal
                     time.sleep(3)
-                    pointX, pointY = self.getPoint(targetX, targetY, self.centerX, self.centerY, 12)
-                    self.goAboveBlock(targetX, targetY)   # go back a bit
+                    pointX, pointY = self.getPoint(targetX, targetY, self.centerX, self.centerY, 5)
+                    self.goAboveBlock(pointX, pointY)   # go back a bit
                     time.sleep(3)
                     
                     self.defaultPos()
@@ -117,6 +117,7 @@ class Move():
         return xOut, yOut
                 
     def getAngle(self, x1, y1, x2, y2):
+        # angle of the line between x1,y1 and x2,y2
         sideX = x2-x1
         sideY = y2-y1
         angleOut = ()
@@ -166,7 +167,8 @@ class Move():
     
     def goAboveBlock(self, x, y):
         # go up a bit
-        self.AK.setPitchRangeMoving((x, y, 8), -90, -90, 0, 2000)
+#         result = self.AK.setPitchRangeMoving((x, y, 8), -90, -90, 0, 2000)
+        print("result", result)
         time.sleep(0.02)
         return
             
