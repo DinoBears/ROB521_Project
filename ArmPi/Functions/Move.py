@@ -167,8 +167,7 @@ class Move():
     
     def goAboveBlock(self, x, y):
         # go up a bit
-#         result = self.AK.setPitchRangeMoving((x, y, 8), -90, -90, 0, 2000)
-        print("result", result)
+        self.AK.setPitchRangeMoving((x, y, 8), -90, -90, 0, 2000)
         time.sleep(0.02)
         return
             
